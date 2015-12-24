@@ -174,7 +174,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             }
         },
         onChangeLayerToggleDropdown: function() {
-
+            
+            var that = this;
+            
             var selectedLayerInDropdown = $("#com-chilipeppr-widget-eagle .selectLayer :selected").text();
             //var activeLayer = this.layer.name;
             //console.log("r4.9:  ", this.layer.name);
@@ -189,6 +191,24 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 console.log("r6:  layer active now", this.activeLayer);
                 //debugger;
                 //this.draw3dSignalWires [this.activeLayer];
+                var layerName = this.activeLayer;
+                if (layerName == "Top") {
+                    //console.log("RAY!!! 3dSignalWireLayerName: T.  ", layerName)
+                    that.colorSignal = 9249571;
+                    that.colorSmd = 9249571;
+                }
+                else if (layerName == "Bottom") {
+                    //console.log("RAY!!! 3dSignalWireLayerName: B.  ", layerName)
+                    that.colorSignal = 2302861;
+                    that.colorSmd = 2302861;
+                    //console.log("RAY!!! Bottom Color:  ", tempColor)
+                }
+                else {
+                    that.colorSignal = 11403055;
+                    that.colorSmd = 11403055;
+                }
+                
+                
                 this.clearEagleBrd();
                 this.draw3d();
                 //this.onRefresh();
@@ -480,7 +500,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             this.paths = null; // final paths generated from onRefresh() used to export gcode
             this.pathsUnion = null;
             this.pathsUnionHoles = null;
-
+            
         },
         setupGcodeTab: function() {
             // attach click event to "Send Gcode to workspace" button
@@ -583,6 +603,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 this.activeLayer = 'Top';
                 this.clearEagleBrd();
                 this.clear3dViewer();
+                
+                this.colorSignal = 9249571;
+                this.colorSmd = 9249571;
 
                 // create board
                 this.eagle = new EagleCanvas('eagle-canvas');
@@ -9095,8 +9118,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
 
             var layerNumber = layer.number;
             var layerName = layer.name;
-            var tempColor = 11403055;
-
+            //var tempColor = 11403055;
+            /*
             if (layerName == "Top") {
                 //console.log("RAY!!! 3dSignalWireLayerName: T.  ", layerName)
                 tempColor = this.colorSignal;
@@ -9106,6 +9129,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 tempColor = this.colorSignalBottom;
                 console.log("RAY!!! Bottom Color:  ", tempColor)
             }
+            */
 
             var lineCap = 'round';
             // user may override the round cap, so take into account
@@ -9183,7 +9207,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 // remove holes from each path even though that's redundant
                 // Three.js seems to handle this ok as when it calculates triangles
                 // it just sees the hole is nowhere near the triangles and moves on
-                var mesh = this.createClipperPathsAsMesh(sol_pathsOuter, tempColor, this.opacitySignal, sol_pathsHoles);
+                var mesh = this.createClipperPathsAsMesh(sol_pathsOuter, this.colorSignal, this.opacitySignal, sol_pathsHoles);
                 // slide signal wire down a tinge on z
                 // to make rendering prettier
                 mesh.position.set(0, 0, -0.00001);
