@@ -9157,9 +9157,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             if (!layer) {
                 return;
             }
-
-
-
+            
+            
+            
             console.group("draw3dSignalWires");
             console.log("layer:", layer);
 
@@ -9177,13 +9177,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 console.log("RAY!!! Bottom Color:  ", tempColor)
             }
             */
-
+            
+            var that = this;
+            
             var lineCap = 'round';
             // user may override the round cap, so take into account
 
             // contains all paths for each individual signal
             // so we can join them at the end
             var signalArr = [];
+            
+            var bigSceneGroup = new THREE.Group();
 
             for (var signalKey in this.eagle.signalItems) {
 
@@ -9203,7 +9207,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 this.clipperBySignalKey[signalKey].layer = layer;
                 this.clipperBySignalKey[signalKey].wire = {};
 
-                var that = this;
+                // var that = this;
 
                 // per signal wire centipede
                 var centipede = [];
@@ -9258,7 +9262,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 // slide signal wire down a tinge on z
                 // to make rendering prettier
                 mesh.position.set(0, 0, -0.00001);
-                
+                /*
                 var rFlip = (Math.PI / 180) * 180;
                 var axisFlip = new THREE.Vector3(0, 1, 0);
                 if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
@@ -9266,9 +9270,10 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                     that.rotateAroundObjectAxis(mesh, axisFlip, rFlip);
                     //placeholder for translating object by x or y board length
                 }   //signals flip code
+                */
+                //this.sceneAdd(mesh);
+                bigSceneGroup.add (mesh);
                 
-                this.sceneAdd(mesh);
-
                 // add userData for intersect
                 mesh.userData.type = "signal";
                 mesh.userData.name = signalKey;
@@ -9281,7 +9286,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 //mesh.computeFaceNormals();
                 //console.log("just added signal mesh to intersectObjects. mesh:", mesh);
                 this.intersectObjects.push(mesh);
-
+                
                 // create record of this union'ed signal wire
                 var ctr = 0;
                 sol_paths.forEach(function(path) {
@@ -9297,6 +9302,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 };
 
             }
+            
+            var rFlip = (Math.PI / 180) * 180;
+                var axisFlip = new THREE.Vector3(0, 1, 0);
+                if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                    console.log("ray: Bottom Flip Signals");
+                    that.rotateAroundObjectAxis(bigSceneGroup, axisFlip, rFlip);
+                    //placeholder for translating object by x or y board length
+                }   //signals flip code
+            
+            that.sceneAdd (bigSceneGroup);
+            
+            
             console.log("final list of clipper signal wires:", this.clipperSignalWires);
             console.log("this.clipperBySignalKey[]:", this.clipperBySignalKey);
             console.groupEnd();
