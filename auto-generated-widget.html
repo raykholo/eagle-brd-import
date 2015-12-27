@@ -353,6 +353,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
               });
               */
         },
+        flipTheBoard: true, //ray temporary hardcode, later bind to user input
+        //placeholder, also need to hold which direction to flip board in.  coming soon.
 
         setupFeedsDepths: function() {
             // As user changes vals, just update our global props
@@ -8903,6 +8905,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             return wires;
         },
         draw3dDimension: function(endmillSize) {
+            var that = this;
             console.log("draw3dDimension", this.eagle);
             var wires = this.getDimensionWires();
             var color = this.colorDimension;
@@ -8929,6 +8932,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             }
 
             var line = new THREE.Line(lineGeo, lineMat);
+            
+            var rFlip = (Math.PI / 180) * 180;
+            var axisFlip = new THREE.Vector3(0, 1, 0);
+            if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) {  //If bottom layer flip board
+                console.log ("ray: Bottom Flip Dimension");
+                that.rotateAroundObjectAxis (line, axisFlip, rFlip);
+                //placeholder for translating object by x or y board length
+            }
+            
             this.sceneAdd(line);
 
             // get the inflated milling area
@@ -9084,7 +9096,9 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             var that = this;
             console.group("draw3dVias");
             //console.log("this.signalItems:", this.eagle.signalItems);
-
+            
+            var bigSceneGroup = new THREE.Group();
+            
             for (var signalKey in this.eagle.signalItems) {
 
                 var signalLayers = this.eagle.signalItems[signalKey];
@@ -9143,7 +9157,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
 
                     var line = that.drawCircle(via.x, via.y, via.drill / 2, that.colorHole);
                     line.rotateZ(Math.PI / 8);
-                    this.sceneAdd(line);
+                    
+                    /*
+                    var rFlip1 = (Math.PI / 180) * 180;
+                    var axisFlip1 = new THREE.Vector3(0, 1, 0);
+                    if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                        console.log("ray: Bottom Flip Vias (loc1)");
+                        that.rotateAroundObjectAxis(line, axisFlip1, rFlip1);
+                        //placeholder for translating object by x or y board length
+                    }   //pads not getting flipped
+                    */
+                    bigSceneGroup.add (line);
+                    //this.sceneAdd(line);
 
                     // Create shape with hole
                     var shape = new THREE.Shape();
@@ -9191,7 +9216,18 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                     mesh.userData["via"] = via;
                     mesh.userData["name"] = signalKey;
                     mesh.userData["layerVias"] = layerVias;
-                    this.sceneAdd(mesh);
+                    
+                    /*
+                    var rFlip2 = (Math.PI / 180) * 180;
+                    var axisFlip2 = new THREE.Vector3(0, 1, 0);
+                    if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                        console.log("ray: Bottom Flip Vias (loc2)");
+                        that.rotateAroundObjectAxis(mesh, axisFlip2, rFlip2);
+                        //placeholder for translating object by x or y board length
+                    }   //pads not getting flipped
+                    */
+                    bigSceneGroup.add (mesh);
+                    // this.sceneAdd(mesh);
 
                     // add that these get detected during
                     // mouseover
@@ -9223,6 +9259,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 }, this)
 
             }
+            
+            var rFlip = (Math.PI / 180) * 180;
+                    var axisFlip = new THREE.Vector3(0, 1, 0);
+                    if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                        console.log("ray: Bottom Flip Vias (loc2)");
+                        that.rotateAroundObjectAxis(bigSceneGroup, axisFlip, rFlip);
+                        //placeholder for translating object by x or y board length
+                    }//vias get flipped
+            
+            that.sceneAdd (bigSceneGroup);
+            
             console.log("this.clipperBySignalKey[]:", this.clipperBySignalKey);
             console.groupEnd();
 
@@ -9333,6 +9380,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 // slide signal wire down a tinge on z
                 // to make rendering prettier
                 mesh.position.set(0, 0, -0.00001);
+                
+                var rFlip = (Math.PI / 180) * 180;
+                var axisFlip = new THREE.Vector3(0, 1, 0);
+                if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                    console.log("ray: Bottom Flip Signals");
+                    that.rotateAroundObjectAxis(mesh, axisFlip, rFlip);
+                    //placeholder for translating object by x or y board length
+                }   //signals flip code
+                
                 this.sceneAdd(mesh);
 
                 // add userData for intersect
@@ -9445,6 +9501,15 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 // slide signal wire down a tinge on z
                 // to make rendering prettier
                 mesh.position.set(0, 0, 0.00001);
+                
+                var rFlip = (Math.PI / 180) * 180;
+                var axisFlip = new THREE.Vector3(0, 1, 0);
+                if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                    console.log("ray: Bottom Flip Polygons");
+                    that.rotateAroundObjectAxis(mesh, axisFlip, rFlip);
+                    //placeholder for translating object by x or y board length
+                }   //polygons flip code
+                
                 this.sceneAdd(mesh);
 
                 // add userData for intersect
@@ -9485,6 +9550,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
         clipperVias: [], // subset of elements (vias)
         drillPads: {}, // save all pad drill vectors
         drillVias: {}, // save all via drill vectors
+        //bigSceneGroup: {},
         draw3dElements: function(layer) {
 
             if (!layer) return;
@@ -9492,6 +9558,8 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
             console.group("draw3dElements");
 
             var that = this;
+            
+            var bigSceneGroup = new THREE.Group();
 
             for (var elemKey in this.eagle.elements) {
                 var elem = this.eagle.elements[elemKey];
@@ -9684,7 +9752,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
 
                 // set position
                 smdgroup.position.set(elem.x, elem.y, 0);
-                that.sceneAdd(smdgroup);
+                /*
+                var rFlip1 = (Math.PI / 180) * 180;
+                var axisFlip1 = new THREE.Vector3(0, 1, 0);
+                if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                    console.log("ray: Bottom Flip SMDs");
+                    that.rotateAroundObjectAxis(smdgroup, axisFlip1, rFlip1);
+                    //placeholder for translating object by x or y board length
+                }   //SMDs flip code
+                */
+                //that.sceneAdd(smdgroup);
+                bigSceneGroup.add (smdgroup);
 
 
                 // store as a clipper path for later union'ing
@@ -10065,7 +10143,22 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                                 D: drill.toFixed(4)
                             });
                             // New routine to draw a cirlce in threed
-                            this.sceneAdd(this.drawCircle(vector.x, vector.y, drill / 2, this.colorHole));
+                            
+                            
+                            //var tempCircle = this.drawCircle(vector.x, vector.y, drill / 2, this.colorHole);
+                            /*
+                            var rFlip3 = (Math.PI / 180) * 180;
+                            var axisFlip3 = new THREE.Vector3(0, 1, 0);
+                            if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                                console.log("ray: Bottom Flip Circles");
+                                that.rotateAroundObjectAxis(tempCircle, axisFlip3, rFlip3);
+                                //placeholder for translating object by x or y board length
+                            } //circles flip code
+                            */
+                            
+                            //this.sceneAdd (tempCircle);
+                            bigSceneGroup.add (this.drawCircle(vector.x, vector.y, drill / 2, this.colorHole));
+                            //this.sceneAdd(this.drawCircle(vector.x, vector.y, drill / 2, this.colorHole));
                             // drill hole --> end
                         }
 
@@ -10201,7 +10294,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                     mesh.userData["elem"] = group.userData.elem;
                     mesh.userData["pkg"] = group.userData.pkg;
                     mesh.userData["pad"] = group.userData.pad;
-                    this.sceneAdd(mesh);
+                    /*
+                    var rFlip2 = (Math.PI / 180) * 180;
+                    var axisFlip2 = new THREE.Vector3(0, 1, 0);
+                    if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                        console.log("ray: Bottom Flip Pads");
+                        that.rotateAroundObjectAxis(mesh, axisFlip2, rFlip2);
+                        //placeholder for translating object by x or y board length
+                    } //pads flip code
+                    */
+                    bigSceneGroup.add (mesh);
+                    // this.sceneAdd(mesh);
 
                     // add that these get detected during
                     // mouseover
@@ -10267,10 +10370,32 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                         opacity: 0.5
                     });
                     var line = new THREE.Line(lineGeo, lineMat);
-                    that.sceneAdd(line);
+                    
+                    /*
+                    var rFlip4 = (Math.PI / 180) * 180;
+                    var axisFlip4 = new THREE.Vector3(0, 1, 0);
+                    if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                        console.log("ray: Bottom Flip Polygons");
+                        that.rotateAroundObjectAxis(line, axisFlip4, rFlip4);
+                        //placeholder for translating object by x or y board length
+                    } //pkgWires flip code ?what is this for?
+                    */
+                    //that.sceneAdd(line);
+                    bigSceneGroup.add (line); 
 
                 }, this);
-
+                
+                /*
+                var rFlip = (Math.PI / 180) * 180;
+                var axisFlip = new THREE.Vector3(0, 1, 0);
+                if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                    console.log("ray: Bottom Flip Element");
+                    that.rotateAroundObjectAxis(bigSceneGroup, axisFlip, rFlip);
+                    //placeholder for translating object by x or y board length
+                }   //Elements flip code
+                
+                that.sceneAdd (bigSceneGroup);
+                */
 
                 /*
                 var smashed = elem.smashed,
@@ -10317,6 +10442,17 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 }
                 */
             }
+            
+            var rFlip = (Math.PI / 180) * 180;
+                var axisFlip = new THREE.Vector3(0, 1, 0);
+                if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
+                    console.log("ray: Bottom Flip Element");
+                    that.rotateAroundObjectAxis(bigSceneGroup, axisFlip, rFlip);
+                    //placeholder for translating object by x or y board length
+                }   //Elements flip code
+                
+                that.sceneAdd (bigSceneGroup);
+            
             console.log("final list of clipper elements:", this.clipperElements);
             console.log("this.eagle.elements with all threeObjs and clipperPaths", this.eagle.elements);
             console.log("this.clipperBySignalKey", this.clipperBySignalKey);
