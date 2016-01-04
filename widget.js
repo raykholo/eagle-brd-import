@@ -9302,7 +9302,7 @@ cpdefine("inline:com-chilipeppr-widget-eagle", ["chilipeppr_ready", "Clipper", "
                 };
 
             }
-            
+            console.log ("SignalWires mesh:  ", mesh, "  group:  ", bigSceneGroup);
             var rFlip = (Math.PI / 180) * 180;
                 var axisFlip = new THREE.Vector3(0, 1, 0);
                 if (this.activeLayer == 'Bottom' && this.flipTheBoard == true) { //If bottom layer flip board
